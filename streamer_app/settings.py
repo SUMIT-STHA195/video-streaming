@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,10 +40,40 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'customuser',
     'videostreamer',
+    'drf_yasg',
     'cloudinary_storage',
     'cloudinary'
 ]
+
+AUTH_USER_MODEL = 'customuser.CustomUser'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=2),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'Enter: Bearer <your-token>'
+        }
+    },
+    'USE_SESSION_AUTH': False,  # Optional: Disables Django session login in Swagger
+    'PERSIST_AUTH': True,      # Keeps you logged in even if you refresh the page
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
