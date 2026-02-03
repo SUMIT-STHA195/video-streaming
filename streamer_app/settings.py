@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'customuser',
+    'base_utils',
     'videostreamer',
     'drf_yasg',
     'cloudinary_storage',
@@ -52,6 +53,8 @@ AUTH_USER_MODEL = 'customuser.CustomUser'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
     )
 }
 
@@ -71,7 +74,7 @@ SWAGGER_SETTINGS = {
             'description': 'Enter: Bearer <your-token>'
         }
     },
-    'USE_SESSION_AUTH': False,  # Optional: Disables Django session login in Swagger
+    'USE_SESSION_AUTH': True,  # Optional: Disables Django session login in Swagger
     'PERSIST_AUTH': True,      # Keeps you logged in even if you refresh the page
 }
 
@@ -81,6 +84,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'crum.CurrentRequestUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]

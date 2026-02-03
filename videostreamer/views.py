@@ -1,26 +1,29 @@
 from rest_framework import generics, viewsets
 from rest_framework.response import Response
-from .serializers import VideoWriteSerializer, VideoListSerializer
+from .serializers import VideoWriteSerializer
 from .models import Video
 from rest_framework import status
 from .utils import upload_video
 from .permissions import IsCreator
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.db import transaction
 import cloudinary.uploader
 # Create your views here.
 
 
-class VideoViewSet(viewsets.ModelViewSet):
+class VideoView(generics.ListAPIView):
+    serializer_class = VideoWriteSerializer
     queryset = Video.objects.all()
-    http_method_names = ['get', 'put', 'post', 'delete']
-    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [AllowAny]
 
-    def get_serializer_class(self):
-        if self.action in ['list', 'retrieve']:
-            return VideoListSerializer
-        return VideoWriteSerializer
+
+class UserVideoViewSet(viewsets.ModelViewSet):
+    serializer_class = VideoWriteSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_queryset(self):
+        return Video.objects.filter(created_by_id=self.request.user.id)
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -32,7 +35,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         try:
             with transaction.atomic():
-                instance = serializer.save(creator=self.request.user)
+                instance = serializer.save()
                 # This ensures the HLS upload happens only if the DB save succeeds
                 upload_video(instance)
                 return Response({

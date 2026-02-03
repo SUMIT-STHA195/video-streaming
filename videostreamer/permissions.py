@@ -8,4 +8,4 @@ class IsCreator(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         # Checks if the video's creator is the user making the request
         # This prevents User A from deleting User B's video
-        return obj.creator == request.user
+        return obj.created_by_id == request.user.id

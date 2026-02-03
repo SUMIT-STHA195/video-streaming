@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model, login
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
@@ -11,13 +12,14 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from drf_yasg.utils import swagger_auto_schema
 User = get_user_model()
 
+
 # Create your views here.
 
 
 class RegisterUserView(generics.CreateAPIView):
     serializer_class = RegistrationSerializer
     queryset = User.objects.all()
-    parser_classes=[FormParser]
+    parser_classes = [FormParser]
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -30,11 +32,13 @@ class RegisterUserView(generics.CreateAPIView):
 
 class LoginUserView(APIView):
     permission_classes = [AllowAny]
+
     @swagger_auto_schema(request_body=LoginSerializer)
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
+        login(request, user)
         refresh = RefreshToken.for_user(user)
         return Response({
             "message": "login successful",
